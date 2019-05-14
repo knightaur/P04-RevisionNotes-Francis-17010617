@@ -95,7 +95,7 @@ public class DBHelper extends SQLiteOpenHelper {
             // moveToNext() returns false when no more next row to move to
             do {
 
-
+                notes.add(cursor.getString(0));
             } while (cursor.moveToNext());
         }
         // Close connection

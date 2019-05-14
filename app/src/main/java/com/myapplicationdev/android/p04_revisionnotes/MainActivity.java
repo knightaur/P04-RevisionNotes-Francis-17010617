@@ -3,11 +3,14 @@ package com.myapplicationdev.android.p04_revisionnotes;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,23 +29,39 @@ public class MainActivity extends AppCompatActivity {
         editTextNote = findViewById(R.id.editTextNote);
         radioGroupStars = findViewById(R.id.radioGroupStars);
 
-        buttonInsertNote.setOnClickListener((v)-> {
-            DBHelper db = new DBHelper(MainActivity.this);
 
-            if(editTextNote.toString().length() > 0){
-                String note = editTextNote.getText().toString();
-                int selectedButtonId = radioGroupStars.getCheckedRadioButtonId();
-                RadioButton rb = findViewById(selectedButtonId);
-                int rating = Integer.parseInt(rb.getText().toString());
-                db.insertNote(note, rating);
-                Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
-                db.close();
-            }
-            else{
-                Toast.makeText(this, "Enter Note's Name", Toast.LENGTH_SHORT).show();
-            }
+            buttonInsertNote.setOnClickListener((v) -> {
 
-        });
+                if(editTextNote.getText().toString().length() > 0) {
+                    DBHelper db = new DBHelper(MainActivity.this);
+                    ArrayList<String> existing = db.getNoteContent();
+                    boolean exist = false;
+
+                    String note = editTextNote.getText().toString();
+                    int selectedButtonId = radioGroupStars.getCheckedRadioButtonId();
+                    RadioButton rb = findViewById(selectedButtonId);
+                    int rating = Integer.parseInt(rb.getText().toString());
+
+                    for (int i = 0; i < existing.size(); i++) {
+                        if(note.equalsIgnoreCase(existing.get(i))){
+                            exist = true;
+                        }
+                    }
+
+                    if(exist){
+                        Toast.makeText(this, "Existing Data", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        db.insertNote(note, rating);
+                        Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
+                        db.close();
+                    }
+                }
+                else{
+                    Toast.makeText(this, "Enter Note", Toast.LENGTH_SHORT).show();
+                }
+            });
+
 
         buttonShowList.setOnClickListener((v) ->{
             Intent intent = new Intent(MainActivity.this, SecondActivity.class);
